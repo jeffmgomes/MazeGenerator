@@ -8,10 +8,13 @@ package mazegenerator;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -31,6 +34,7 @@ public class MazeGenerator extends JPanel {
     public Cell grid[][];
     public Cell current;
     public ArrayList<Cell> stack = new ArrayList<>();
+    public boolean mazeDone = false;
 
     /**
      * Main program
@@ -58,6 +62,10 @@ public class MazeGenerator extends JPanel {
 
     // Constructor
     public MazeGenerator() {
+        KeyListener listener = new MyKeyListener();
+        addKeyListener(listener);
+        setFocusable(true);
+
         cols = w / scl; // Set the Columns
         rows = h / scl; // Set the Rows
 
@@ -122,6 +130,11 @@ public class MazeGenerator extends JPanel {
             if (!stack.isEmpty()) {
                 // Return one step in the backtrack and set as the Current Cell
                 current = stack.remove(stack.size() - 1);
+            } else {
+                if (!mazeDone) {
+                    mazeDone = true;
+                    JOptionPane.showMessageDialog(this, "You can move now!", "Move around", JOptionPane.DEFAULT_OPTION);
+                }
             }
         }
     }
@@ -140,6 +153,44 @@ public class MazeGenerator extends JPanel {
 
         // Paint the Current cell to green
         g.setColor(Color.green);
+        //g.fillRect(current.x + scl / 4, current.y + scl / 4, scl / 2, scl / 2);
         g.fillRect(current.x, current.y, scl, scl);
+    }
+
+    public class MyKeyListener implements KeyListener {
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            if (mazeDone) {
+                if ("Up".equals(KeyEvent.getKeyText(e.getKeyCode()))) {
+                    if (!current.walls[0].up) {
+                        current = grid[current.i][current.j - 1];
+                    }
+                }
+                if ("Right".equals(KeyEvent.getKeyText(e.getKeyCode()))) {
+                    if (!current.walls[1].up) {
+                        current = grid[current.i + 1][current.j];
+                    }
+                }
+                if ("Down".equals(KeyEvent.getKeyText(e.getKeyCode()))) {
+                    if (!current.walls[2].up) {
+                        current = grid[current.i][current.j + 1];
+                    }
+                }
+                if ("Left".equals(KeyEvent.getKeyText(e.getKeyCode()))) {
+                    if (!current.walls[3].up) {
+                        current = grid[current.i - 1][current.j];
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+        }
+
+        @Override
+        public void keyTyped(KeyEvent e) {
+        }
     }
 }
